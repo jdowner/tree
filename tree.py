@@ -5,6 +5,14 @@ import networkx as nx
 
 
 def tree(root, children_func, label_func=str):
+    """Writes a tree to standard out
+
+    @param root          - the root node of the tree
+    @param children_func - a function that takes a node and returns a list of
+                           the nodes children
+    @param label_func    - converts a node into a string (default=str)
+
+    """
     def recurse(node, padding, last=False):
         if last:
             print(u"{}└── {}".format(padding[:-4], label_func(node)))
@@ -36,12 +44,12 @@ class Node(object):
 
 root = Node('a', [
         Node('c', [
+            Node('e', [
+                Node('f'),
+                ]),
             Node('d', [
                 Node('g'),
                 Node('h'),
-                ]),
-            Node('e', [
-                Node('f'),
                 ]),
             ]),
         Node('b'),
@@ -54,35 +62,30 @@ import yaml
 
 graph = yaml.load("""
 a:
-- b
 - c:
+  - e:
+    - f
   - d:
     - g
     - h
-  - e:
-    - f
+- b
 """)
 
 def yaml_children(node):
     assert(isinstance(node, dict))
+    assert(len(node.keys()) <= 1)
+
+    _, successors = node.items()[0]
 
     children = list()
-    for child in node.values():
-        if isinstance(child, dict):
-            children.append(child)
+    for s in successors:
+        if isinstance(s, dict):
+            children.append(s)
             continue
 
-        if isinstance(child, list):
-            children.extend(child)
-            continue
-
-        children.append({child:{}})
+        children.append({s:{}})
 
     return children
-
-
-
-
 
 
 def yaml_label(node):
